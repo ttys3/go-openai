@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	headerData  = []byte("data: ")
+	headerData  = []byte("data:")
 	errorPrefix = []byte(`data: {"error":`)
 )
 
@@ -57,6 +57,7 @@ func (stream *streamReader[T]) processLines() (T, error) {
 		}
 
 		noSpaceLine := bytes.TrimSpace(rawLine)
+		fmt.Printf("raw: %s\n", noSpaceLine)
 		if bytes.HasPrefix(noSpaceLine, errorPrefix) {
 			hasErrorPrefix = true
 		}
@@ -64,6 +65,7 @@ func (stream *streamReader[T]) processLines() (T, error) {
 			if hasErrorPrefix {
 				noSpaceLine = bytes.TrimPrefix(noSpaceLine, headerData)
 			}
+			noSpaceLine = bytes.TrimSpace(noSpaceLine)
 			writeErr := stream.errAccumulator.Write(noSpaceLine)
 			if writeErr != nil {
 				return *new(T), writeErr
